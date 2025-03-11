@@ -56,7 +56,6 @@ const connect = () => {
  */
 app.post("/steps", authenticate, (req, res) => {
     const { steps, date, user } = req.body;
-    console.log(req.body);
     const connection = connect();
 
     connection.query(
@@ -262,8 +261,6 @@ app.delete("/steps", authenticate, (req, res) => {
  */
 app.put("/steps", authenticate, (req, res) => {
     const { user, date, steps } = req.body;
-    console.log(req.body);
-    console.log(user, date, steps);
     const connection = connect();
 
     connection.query(
@@ -280,6 +277,56 @@ app.put("/steps", authenticate, (req, res) => {
 
     connection.end();
 });
+
+
+/**
+ * @swagger
+ * /temp:
+ *   post:
+ *     summary: Create a new temperature entry
+ *     tags: [Temperature]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               room:
+ *                 type: number
+ *               time:
+ *                 type: string
+ *                 format: date-time
+ *               temp:
+ *                 type: number
+ *               humidity:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: Created
+ *       500:
+ *         description: Internal server error
+ */
+app.post("/temp", authenticate, (req, res) => {
+    const { room, time, temp, humidity } = req.body;
+    const connection = connect();
+
+    connection.query(
+        'INSERT INTO t_temp (Room, Date, Temp, Humidity) VALUES (?, ?, ?, ?)',
+        [room, time, temp, humidity],
+        (error, _) => {
+            if (error) {
+                res.status(500).send(error);
+            } else {
+                res.status(201).send("Created");
+            }
+        }
+    );
+
+    connection.end();
+});
+
+
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on PORT ${process.env.PORT}`);
 });
